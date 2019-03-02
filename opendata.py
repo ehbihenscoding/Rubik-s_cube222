@@ -20,11 +20,19 @@ test = pd.read_csv("data/test_input_5c0imze.csv",)
 target = pd.read_csv("data/train_output_xd4VV9Q.csv",)
 
 train = pd.concat([traininp, target], axis=1)
-train = train.drop('ID',1)
+train = train.drop('ID',1)[0:421448]
 target = train["distance"].values
 
 # FEATURES -----------------------------------------------------------------------------------
 features = ['pos1','pos2','pos3','pos4','pos5','pos6','pos7','pos8','pos9','pos10','pos11','pos12','pos13','pos14','pos15','pos16','pos17','pos18','pos19','pos20','pos21','pos23']
+
+selector = SelectKBest(f_classif, k=len(features))
+selector.fit(train[features], target)
+scores = -np.log10(selector.pvalues_)
+indices = np.argsort(scores)[::-1]
+print("Features importance :")
+for f in range(len(scores)):
+    print("%0.2f %s" % (scores[indices[f]],features[indices[f]]))
 
 rfc = RandomForestClassifier(n_estimators=3000, min_samples_split=4, class_weight={1:6,1:14})
 
