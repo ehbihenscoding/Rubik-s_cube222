@@ -34,13 +34,12 @@ print("Features importance :")
 for f in range(len(scores)):
     print("%0.2f %s" % (scores[indices[f]],features[indices[f]]))
 
-rfc = RandomForestClassifier(n_estimators=3000, min_samples_split=4, class_weight={1:6,1:14})
-
+rfc = RandomForestClassifier(n_estimators=125, min_samples_split=3)#, class_weight={1:6,1:14})
 
 # CROSS VALIDATION WITH RANDOM FOREST CLASSIFIER METHOD-----------------------------------------
 kf = cross_validation.KFold(train.shape[0], n_folds=3, random_state=1)
 scores = cross_validation.cross_val_score(rfc, train[features], target, cv=kf)
-print("etape 2")
+
 print("Accuracy: %0.3f (+/- %0.2f) [%s]" % (scores.mean()*100, scores.std()*100, 'RFC Cross Validation'))
 rfc.fit(train[features], target)
 score = rfc.score(train[features], target)
@@ -50,15 +49,42 @@ indices = np.argsort(importances)[::-1]
 for f in range(len(features)):
     print("%d. feature %d (%f) %s" % (f + 1, indices[f]+1, importances[indices[f]]*100, features[indices[f]]))
 
+print("début prédiction")
 
 # PREDICTION  -----------------------------------------------------------------------------------
 rfc.fit(train[features], target)
-predictions = rfc.predict(test[features])
+
+predictions = rfc.predict(test[features][0:918540/2])
 
 # OUTPUT FILE -----------------------------------------------------------------------------------
-PassengerId =np.array(test["ID"]).astype(int)
+PassengerId =np.array(test["ID"][0:918540/2]).astype(int)
 my_prediction = pd.DataFrame(predictions, PassengerId, columns = ["distance"])
 
-my_prediction.to_csv("data/my_prediction.csv", index_label = ["ID"])
+my_prediction.to_csv("predict/my_prediction1_4.csv", index_label = ["ID"])
+print("fin étape 1")
+
+predictions = rfc.predict(test[features][918540/2:918540])
+# OUTPUT FILE -----------------------------------------------------------------------------------
+PassengerId =np.array(test["ID"][918540/2:918540]).astype(int)
+my_prediction = pd.DataFrame(predictions, PassengerId, columns = ["distance"])
+
+my_prediction.to_csv("predict/my_prediction2_4.csv", index_label = ["ID"])
+print("fin étape 2")
+
+predictions = rfc.predict(test[features][918540:918540+918540/2])
+# OUTPUT FILE -----------------------------------------------------------------------------------
+PassengerId =np.array(test["ID"][918540:918540+918540/2]).astype(int)
+my_prediction = pd.DataFrame(predictions, PassengerId, columns = ["distance"])
+
+my_prediction.to_csv("predict/my_prediction3_4.csv", index_label = ["ID"])
+print("fin étape 3")
+
+predictions = rfc.predict(test[features][918540+918540/2:])
+# OUTPUT FILE -----------------------------------------------------------------------------------
+PassengerId =np.array(test["ID"][918540+918540/2:]).astype(int)
+my_prediction = pd.DataFrame(predictions, PassengerId, columns = ["distance"])
+
+my_prediction.to_csv("predict/my_prediction4_4.csv", index_label = ["ID"])
+print("fin étape 4")
 
 print("The end ...")
