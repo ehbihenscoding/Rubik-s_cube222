@@ -8,8 +8,9 @@ Created on Sun Feb 24 19:38:47 2019
 
 import pandas as pd
 import numpy as np
-from sklearn.ensemble import RandomForestClassifier, ExtraTreesRegressor
-from sklearn.ensemble import BaggingClassifier
+#from sklearn.ensemble import RandomForestClassifier, ExtraTreesRegressor
+#from sklearn.ensemble import BaggingClassifier
+from sklearn.ensemble import AdaBoostClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn import cross_validation
 import re
@@ -37,7 +38,9 @@ for f in range(len(scores)):
     print("%0.2f %s" % (scores[indices[f]],features[indices[f]]))
 
 #rfc = RandomForestClassifier(n_estimators=125, min_samples_split=3)#, class_weight={1:6,1:14})
-rfc = BaggingClassifier(KNeighborsClassifier(),max_samples=0.5, max_features=0.5)
+x = {'n_estimators': 2000}
+rfc =  AdaBoostClassifier(**x)
+#rfc = BaggingClassifier(KNeighborsClassifier(),max_samples=0.5, max_features=0.5)
 
 # CROSS VALIDATION WITH RANDOM FOREST CLASSIFIER METHOD-----------------------------------------
 kf = cross_validation.KFold(train.shape[0], n_folds=3, random_state=1)
@@ -57,10 +60,10 @@ print("début prédiction")
 # PREDICTION  -----------------------------------------------------------------------------------
 rfc.fit(train[features], target)
 
-predictions = rfc.predict(test[features][0:918540/2])
+predictions = rfc.predict(test[features])
 
 # OUTPUT FILE -----------------------------------------------------------------------------------
-PassengerId =np.array(test["ID"][0:918540/2]).astype(int)
+PassengerId =np.array(test["ID"]).astype(int)
 my_prediction = pd.DataFrame(predictions, PassengerId, columns = ["distance"])
 
 my_prediction.to_csv("predict/my_prediction1_4.csv", index_label = ["ID"])
