@@ -9,6 +9,8 @@ Created on Sun Feb 24 19:38:47 2019
 import pandas as pd
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier, ExtraTreesRegressor
+from sklearn.ensemble import BaggingClassifier
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn import cross_validation
 import re
 import operator
@@ -34,7 +36,8 @@ print("Features importance :")
 for f in range(len(scores)):
     print("%0.2f %s" % (scores[indices[f]],features[indices[f]]))
 
-rfc = RandomForestClassifier(n_estimators=125, min_samples_split=3)#, class_weight={1:6,1:14})
+#rfc = RandomForestClassifier(n_estimators=125, min_samples_split=3)#, class_weight={1:6,1:14})
+rfc = BaggingClassifier(KNeighborsClassifier(),max_samples=0.5, max_features=0.5)
 
 # CROSS VALIDATION WITH RANDOM FOREST CLASSIFIER METHOD-----------------------------------------
 kf = cross_validation.KFold(train.shape[0], n_folds=3, random_state=1)
@@ -44,10 +47,10 @@ print("Accuracy: %0.3f (+/- %0.2f) [%s]" % (scores.mean()*100, scores.std()*100,
 rfc.fit(train[features], target)
 score = rfc.score(train[features], target)
 print("Accuracy: %0.3f            [%s]" % (score*100, 'RFC full test'))
-importances = rfc.feature_importances_
-indices = np.argsort(importances)[::-1]
-for f in range(len(features)):
-    print("%d. feature %d (%f) %s" % (f + 1, indices[f]+1, importances[indices[f]]*100, features[indices[f]]))
+#importances = rfc.feature_importances_
+#indices = np.argsort(importances)[::-1]
+#for f in range(len(features)):
+#    print("%d. feature %d (%f) %s" % (f + 1, indices[f]+1, importances[indices[f]]*100, features[indices[f]]))
 
 print("début prédiction")
 
